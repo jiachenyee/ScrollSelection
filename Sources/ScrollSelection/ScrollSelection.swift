@@ -11,11 +11,21 @@ public class ScrollSelection {
     var offsetMultiplier: CGFloat!
     var scrollView: UIScrollView?
     
+    /// Haptic feedback styles
     var hapticStyle: HapticsStyle = HapticsStyle.normal(style: .medium)
+    
     var isActive = true
     
+    /// To support Haptic Feedback, ensuring that users
+    /// do not get spammed with random vibrations
     var currentSection: Int = -1
     
+    /// Set up scroll selection
+    /// - Parameters:
+    ///   - vc: Parent View Controller
+    ///   - selectedStyle: Intended scroll selection styles
+    ///   - offsetMultiplier: Y-axis offset before when selecting buttons
+    ///   - scrollView: ScrollView to target
     public init(vc: UIViewController,
                 selectedStyle: [Style],
                 offsetMultiplier: CGFloat,
