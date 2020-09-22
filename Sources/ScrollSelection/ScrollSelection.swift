@@ -2,47 +2,6 @@ import UIKit
 import Foundation
 
 @available(iOS 13.0, *)
-public extension UIViewController {
-    
-    func createScrollSelection(withOffset offsetMultiplier: CGFloat = 70,
-                               usingStyle style: [ScrollSelection.Style] = ScrollSelection.Style.defaultStyle) -> ScrollSelection {
-        
-        updateBarButtons()
-        
-        let scrollView = self.view.subviews.filter {
-            $0.isMember(of: UIScrollView.self) || $0 is UIScrollView
-        }.first as? UIScrollView
-        
-        return ScrollSelection(vc: self,
-                               selectedStyle: style,
-                               offsetMultiplier: offsetMultiplier,
-                               scrollView: scrollView)
-    }
-    
-    func updateBarButtons(barButtonSide direction: ScrollSelection.Direction = .all) {
-        if navigationController != nil {
-            
-            if direction.contains(.left) {
-                let leftBarButtonItems = navigationItem.leftBarButtonItems ?? []
-                
-                navigationItem.setLeftBarButtonItems(ScrollSelection.convertBarButtons(using: leftBarButtonItems), animated: false)
-            }
-            
-            if direction.contains(.right) {
-                let rightBarButtonItems = navigationItem.rightBarButtonItems ?? []
-                
-                let convertedButtons = ScrollSelection.convertBarButtons(using: rightBarButtonItems)
-                
-                navigationItem.setRightBarButtonItems(convertedButtons, animated: false)
-                
-            }
-        } else {
-            print("⚠️ ScrollSelection Warning ⚠️\nView Controller not in a Navigation Controller.\nEnsure that \(description) is embeded in a Navigation Controller")
-        }
-    }
-}
-
-@available(iOS 13.0, *)
 public class ScrollSelection {
     
     static let edgeOffset: CGFloat = 8
@@ -114,6 +73,40 @@ public class ScrollSelection {
         }
         
         return (previous: previousBarButton, current: selectedBarButton)
+    }
+    
+    func getStaticCirclePath(button: UIButton) -> CGPath {
+        
+        let maxWidth = button.frame.width + ScrollSelection.edgeOffset * 2
+        let maxHeight = button.frame.height + ScrollSelection.edgeOffset * 2
+        
+        return CGPath(roundedRect: .init(x: -ScrollSelection.edgeOffset,
+                                         y: -ScrollSelection.edgeOffset,
+                                         width: maxWidth,
+                                         height: maxHeight),
+                      cornerWidth: maxHeight / 2,
+                      cornerHeight: maxHeight / 2,
+                      transform: nil)
+    }
+    
+    func getExpandingCirclePath(with multiplier: CGFloat, button: UIButton) -> CGPath {
+        
+        let maxWidth = button.frame.width + ScrollSelection.edgeOffset * 2
+        let maxHeight = button.frame.height + ScrollSelection.edgeOffset * 2
+        
+        let width = maxWidth * multiplier
+        let height = maxHeight * multiplier
+        
+        let xEdgeOffset: CGFloat = -ScrollSelection.edgeOffset + (maxWidth - width) / 2
+        let yEdgeOffset: CGFloat = -ScrollSelection.edgeOffset + (maxHeight - height) / 2
+        
+        return CGPath(roundedRect: .init(x: xEdgeOffset,
+                                         y: yEdgeOffset,
+                                         width: width,
+                                         height: height),
+                      cornerWidth: height / 2,
+                      cornerHeight: height / 2,
+                      transform: nil)
     }
     
     func deselectCustomButton(_ button: UIButton) {
@@ -239,10 +232,6 @@ extension ScrollSelection {
     /// }
     /// ```
     func didScroll() {
-        
-        let leftBarButtons = parent.navigationItem.leftBarButtonItems ?? []
-        let rightBarButtons = parent.navigationItem.rightBarButtonItems ?? []
-        
         if let offset = scrollView?.contentOffset.y {
             
             if let section = getCurrentSection(offset) {
@@ -258,15 +247,6 @@ extension ScrollSelection {
                     if multiplier > 1 {
                         multiplier = 1
                     }
-                    
-                    let maxWidth = button.frame.width + ScrollSelection.edgeOffset * 2
-                    let maxHeight = button.frame.height + ScrollSelection.edgeOffset * 2
-                    
-                    let width = maxWidth * multiplier
-                    let height = maxHeight * multiplier
-                    
-                    let xEdgeOffset: CGFloat = -ScrollSelection.edgeOffset + (maxWidth - width) / 2
-                    let yEdgeOffset: CGFloat = -ScrollSelection.edgeOffset + (maxHeight - height) / 2
                     
                     // Getting the highlight style
                     let highlightStyle = style.filter { $0.rawValue == 1 }.first
@@ -290,23 +270,10 @@ extension ScrollSelection {
                         shapeLayer.fillColor = color.cgColor
                         
                         if expands {
-                            shapeLayer.path = CGPath(roundedRect: .init(x: xEdgeOffset,
-                                                                        y: yEdgeOffset,
-                                                                        width: width,
-                                                                        height: height),
-                                                     cornerWidth: height / 2,
-                                                     cornerHeight: height / 2,
-                                                     transform: nil)
+                            shapeLayer.path = getExpandingCirclePath(with: multiplier, button: button)
                         } else {
-                            shapeLayer.path = CGPath(roundedRect: .init(x: -ScrollSelection.edgeOffset,
-                                                                        y: -ScrollSelection.edgeOffset,
-                                                                        width: maxWidth,
-                                                                        height: maxHeight),
-                                                     cornerWidth: height / 2,
-                                                     cornerHeight: height / 2,
-                                                     transform: nil)
+                            shapeLayer.path = getStaticCirclePath(button: button)
                         }
-                        
                     }
                 }
                 
@@ -319,8 +286,11 @@ extension ScrollSelection {
             } else {
                 currentSection = -1
                 
-                if let previousButton = (rightBarButtons.first ?? leftBarButtons.first)?.customView as? UIButton {
-                    deselectCustomButton(previousButton)
+                let leftBarButtons = parent.navigationItem.leftBarButtonItems?.first
+                let rightBarButtons = parent.navigationItem.rightBarButtonItems?.first
+                
+                if let lastButton = (leftBarButtons ?? rightBarButtons)?.customView as? UIButton {
+                    deselectCustomButton(lastButton)
                 }
             }
         } else {
@@ -425,6 +395,7 @@ extension ScrollSelection: CustomDebugStringConvertible, CustomStringConvertible
 // MARK: - Enumerations and Structures
 extension ScrollSelection {
     
+    /// Customise Scroll Selection using `Style` to change colors, animations and more.
     public struct Style {
         
         public var rawValue: Int
@@ -461,6 +432,7 @@ extension ScrollSelection {
             return style
         }
         
+        /// Default scroll selection style
         public static let defaultStyle: [Style] = [highlight(),
                                                  circularHighlight()]
     }
@@ -510,5 +482,65 @@ extension ScrollSelection {
         /// Strong       -> Weak
         /// ```
         case variableDecreasing
+    }
+}
+
+// MARK: UIViewController Implementation
+@available(iOS 13.0, *)
+public extension UIViewController {
+    
+    /// Set-Up Scroll Selection on this View Controller
+    ///
+    /// - Parameters:
+    ///   - offsetMultiplier: Distance between each button selection
+    ///   - style: Scroll Selection Style.
+    ///   Use `ScrollSelection.Style.defaultStyle` for default implementation
+    ///   or remove this parameter
+    ///
+    /// - Returns: An instance of Scroll Selection that is already set up
+    func createScrollSelection(withOffset offsetMultiplier: CGFloat = 70,
+                               usingStyle style: [ScrollSelection.Style] = ScrollSelection.Style.defaultStyle) -> ScrollSelection {
+        
+        updateBarButtons()
+        
+        let scrollView = self.view.subviews.filter {
+            $0.isMember(of: UIScrollView.self) || $0 is UIScrollView
+        }.first as? UIScrollView
+        
+        return ScrollSelection(vc: self,
+                               selectedStyle: style,
+                               offsetMultiplier: offsetMultiplier,
+                               scrollView: scrollView)
+    }
+    
+    /// Update bar buttons with Scroll Selection
+    ///
+    /// Call this function whenever a change is made to the navigation bar buttons
+    ///
+    /// - Parameter direction: `.left` corresponds to the left bar buttons,
+    /// `.right` corresponds to the right bar buttons,
+    /// `.all` updates all buttons.
+    func updateBarButtons(barButtonSide direction: ScrollSelection.Direction = .all) {
+        if navigationController != nil {
+            
+            // Updating left bar buttons
+            if direction.contains(.left) {
+                let leftBarButtonItems = navigationItem.leftBarButtonItems ?? []
+                
+                navigationItem.setLeftBarButtonItems(ScrollSelection.convertBarButtons(using: leftBarButtonItems), animated: false)
+            }
+            
+            // Updating right bar buttons
+            if direction.contains(.right) {
+                let rightBarButtonItems = navigationItem.rightBarButtonItems ?? []
+                
+                let convertedButtons = ScrollSelection.convertBarButtons(using: rightBarButtonItems)
+                
+                navigationItem.setRightBarButtonItems(convertedButtons, animated: false)
+                
+            }
+        } else {
+            print("⚠️ ScrollSelection Warning ⚠️\nView Controller not in a Navigation Controller.\nEnsure that \(description) is embeded in a Navigation Controller")
+        }
     }
 }
