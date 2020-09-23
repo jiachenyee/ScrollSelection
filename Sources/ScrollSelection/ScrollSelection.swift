@@ -1,14 +1,52 @@
 import UIKit
 import Foundation
 
+// MARK: - ScrollSelection
+
+/// Select `UIBarButtonItem`s in Navigation Bars by just scrolling up.
+///
+/// # Quick-Start Guide
+/// ```swift
+/// var scrollSelection: ScrollSelection!
+///
+/// override func viewDidLoad() {
+///     super.viewDidLoad()
+///
+///     scrollSelection = createScrollSelection()
+/// }
+/// ```
+///
+/// In `UIScrollViewDelegate`,
+/// ```swift
+/// func scrollViewDidScroll(_ scrollView: UIScrollView) {
+///     scrollSelection.didScroll()
+/// }
+///
+/// func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
+///     scrollSelection.didEndDragging()
+/// }
+///
+/// func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
+///     scrollSelection.didEndDecelerating()
+/// }
+/// ```
+///
 @available(iOS 13.0, *)
 public class ScrollSelection {
     
+    /// Current Edge Offset for Scroll Selection circle highlights
     static let edgeOffset: CGFloat = 8
     
+    /// Parent ViewController to be targetted
     var parent: UIViewController!
+    
+    /// Current scroll selection style
     var style: [Style]!
+    
+    /// Y-Axis offset between selecting buttons
     var offsetMultiplier: CGFloat!
+    
+    /// Target ScrollView for Scroll Selection
     var scrollView: UIScrollView?
     
     /// Haptic feedback styles
@@ -164,26 +202,14 @@ public class ScrollSelection {
             UIImpactFeedbackGenerator(style: feedback).impactOccurred()
             
         case .variableDecreasing:
-            
             UIImpactFeedbackGenerator(style: styles.reversed()[index]).impactOccurred()
             
         case .variableIncreasing:
-            
             UIImpactFeedbackGenerator(style: styles[index]).impactOccurred()
             
         default:
             break
         }
-    }
-    
-    /// Deactivate Scroll Selection
-    func deactivate() {
-        isActive = false
-    }
-    
-    /// Activate Scroll Selection
-    func activate() {
-        isActive = true
     }
     
     /// Convert UIBarButtonItems to a style compatible with Scroll Selection
@@ -235,6 +261,19 @@ public class ScrollSelection {
         }
         
         return converted
+    }
+}
+
+// MARK: - Activating/Deactivating
+extension ScrollSelection {
+    /// Deactivate Scroll Selection
+    func deactivate() {
+        isActive = false
+    }
+    
+    /// Activate Scroll Selection
+    func activate() {
+        isActive = true
     }
 }
 
