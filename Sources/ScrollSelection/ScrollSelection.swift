@@ -14,6 +14,7 @@ public class ScrollSelection {
     /// Haptic feedback styles
     var hapticStyle: HapticsStyle = HapticsStyle.normal(style: .medium)
     
+    /// Activate or deactivate scroll selection
     var isActive = true
     
     /// To support Haptic Feedback, ensuring that users
@@ -58,6 +59,9 @@ public class ScrollSelection {
         return currentSection
     }
     
+    /// Getting the selected button based on the current section
+    /// - Parameter section: Current selected section
+    /// - Returns: The previous and currently selected bar buttons
     func getSelectedButtons(atSection section: Int) -> (previous: UIBarButtonItem?, current: UIBarButtonItem?){
         let leftBarButtons = parent.navigationItem.leftBarButtonItems ?? []
         let rightBarButtons = parent.navigationItem.rightBarButtonItems ?? []
@@ -85,6 +89,9 @@ public class ScrollSelection {
         return (previous: previousBarButton, current: selectedBarButton)
     }
     
+    /// Get CGPath for static circles (circles that do not expand)
+    /// - Parameter button: Button to inherit path
+    /// - Returns: CGPath that can be added into the layer
     func getStaticCirclePath(button: UIButton) -> CGPath {
         
         let maxWidth = button.frame.width + ScrollSelection.edgeOffset * 2
@@ -99,6 +106,11 @@ public class ScrollSelection {
                       transform: nil)
     }
     
+    /// Get CGPath for expanding circle paths
+    /// - Parameters:
+    ///   - multiplier: A value, from 0.0 to 1.0 to show how much to expand/shrink path
+    ///   - button: Button to inherit the path
+    /// - Returns: CGPath that can be added into the layer
     func getExpandingCirclePath(with multiplier: CGFloat, button: UIButton) -> CGPath {
         
         let maxWidth = button.frame.width + ScrollSelection.edgeOffset * 2
@@ -119,6 +131,8 @@ public class ScrollSelection {
                       transform: nil)
     }
     
+    /// Deselect custom button, reset it to default
+    /// - Parameter button: Button to be deselected
     func deselectCustomButton(_ button: UIButton) {
         if let shapeLayer = button.layer.sublayers?.first as? CAShapeLayer {
             
@@ -242,6 +256,10 @@ extension ScrollSelection {
     /// }
     /// ```
     func didScroll() {
+        
+        // If scroll selection is inactive, don't scroll select
+        if !isActive { return }
+        
         if let offset = scrollView?.contentOffset.y {
             
             if let section = getCurrentSection(offset) {
@@ -324,6 +342,10 @@ extension ScrollSelection {
     /// }
     /// ```
     func didEndDragging() {
+        
+        // Don't launch buttons if it is inactive
+        if !isActive { return }
+        
         let leftBarButtons = parent.navigationItem.leftBarButtonItems ?? []
         let rightBarButtons = parent.navigationItem.rightBarButtonItems ?? []
         
@@ -366,6 +388,10 @@ extension ScrollSelection {
     /// }
     /// ```
     func didEndDecelerating() {
+        
+        // Don't reset to default if scrollSelection is inactive
+        if !isActive { return }
+        
         let leftBarButtons = parent.navigationItem.leftBarButtonItems ?? []
         let rightBarButtons = parent.navigationItem.rightBarButtonItems ?? []
         
