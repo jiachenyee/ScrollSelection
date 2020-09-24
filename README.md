@@ -46,7 +46,7 @@ func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
 
 ### UIViewController Extension (for quick set-up)
 <details>
-<summary><code>createScrollSelection</code></summary>
+<summary><code>Create Scroll Selection</code></summary>
 
 #### Summary
 Set-Up Scroll Selection on this View Controller
@@ -71,7 +71,7 @@ An instance of Scroll Selection that is already set up
 </details>
 
 <details>
-<summary><code>updateBarButtons</code></summary>
+<summary><code>Update Bar Buttons</code></summary>
 
 #### Summary
 Update bar buttons with Scroll Selection
@@ -88,12 +88,13 @@ Call this function whenever a change is made to the navigation bar buttons
 - `barButtonSide direction`
     - `.left` corresponds to the left bar buttons, `.right` corresponds to the right bar buttons, `.all` updates all buttons.
     - Default Value: .all
+    - Refer to [Direction](#direction) for the various direction information
 
 </details>
 
 ### UIScrollViewDelegate Implementation
 <details>
-<summary><code>didScroll</code></summary>
+<summary><code>Did Scroll</code></summary>
 
 #### Summary
 Update ScrollSelection when the scrollview scrolls
@@ -119,7 +120,7 @@ extension ViewController: UIScrollViewDelegate {
 </details>
 
 <details>
-<summary><code>didEndDragging</code></summary>
+<summary><code>Did End Dragging</code></summary>
 
 #### Summary
 Update ScrollSelection when user stops dragging scrollView
@@ -145,7 +146,7 @@ extension ViewController: UIScrollViewDelegate {
 </details>
 
 <details>
-<summary><code>didEndDecelerating</code></summary>
+<summary><code>Did End Decelerating</code></summary>
 
 #### Summary
 Update ScrollSelection once the scrollView stops decelerating
@@ -200,7 +201,7 @@ var scrollView: UIScrollView?
 ```
 
 #### Discussion
-Should be automatically set in by `init` or the UIViewController Implementation
+Should be automatically set in by `init` or the [UIViewController Implementation](#uiviewcontroller-extension-for-quick-set-up)
 
 Scroll Selection will ignore all scrollViews except for the targetted one.
 
@@ -214,11 +215,13 @@ Haptic feedback styles
 
 #### Declaration
 ```swift
-var hapticStyle: HapticsStyle = .normal
+var hapticStyle: HapticsStyle = .variableIncreasing
 ```
 
 #### Discussion
-It uses `.normal` as default value. 
+It uses `.variableIncreasing` as default value. 
+
+Refer to [HapticsStyle](#haptic-styles) for the various styles
 
 </details>
 
@@ -234,9 +237,9 @@ var style: [Style]!
 ```
 
 #### Discussion
-Should be automatically set in by `init` or the UIViewController Implementation. 
+Should be automatically set in by `init` or the [UIViewController Implementation](#uiviewcontroller-extension-for-quick-set-up).
 
-Refer to Scroll Selection Styles for the various styles
+Refer to [Scroll Selection Styles](#scroll-selection-styles) for the various styles
 
 </details>
 
@@ -284,5 +287,103 @@ public static func circularHighlight(using color: UIColor = .systemGray4,
 
 #### Returns
 A scroll selection style
+
+</details>
+
+### Haptic Styles
+
+<details>
+<summary><code>Normal</code></summary>
+
+#### Summary
+Normal Haptic Style
+
+#### Declaration
+```swift
+case normal
+```
+
+#### Discussion
+Normal corresponds to `UISelectionFeedbackGenerator().selectionChanged()`. A more subtle haptic style.
+
+</details>
+
+<details>
+<summary><code>Variable Increasing</code></summary>
+
+#### Summary
+Default style, 
+ feedback becomes more pronounced as user scrolls up
+
+#### Declaration
+```swift
+case variableIncreasing
+```
+
+#### Discussion
+```
+First Button -> Last Button
+Weak         -> Strong
+```
+
+</details>
+
+<details>
+<summary><code>Variable Decreasing</code></summary>
+
+#### Summary
+Haptic feedback becomes less pronounced as user scrolls up
+
+#### Declaration
+```swift
+case variableDecreasing
+```
+
+#### Discussion
+```
+First Button -> Last Button
+Strong       -> Weak
+```
+
+</details>
+
+### Direction
+
+<details>
+<summary><code>Left</code></summary>
+
+#### Summary
+Update Left Bar Buttons
+
+#### Declaration
+```swift
+public static let left: Direction = Direction(rawValue: 1 << 0)
+```
+
+</details>
+
+<details>
+<summary><code>Right</code></summary>
+
+#### Summary
+Update Right Bar Buttons
+
+#### Declaration
+```swift
+public static let right: Direction = Direction(rawValue: 1 << 1)
+```
+
+</details>
+
+<details>
+<summary><code>All</code></summary>
+
+#### Summary
+Update Both Left and Right Bar Buttons
+
+#### Declaration
+```swift
+public static let all: Direction = [.left, .right]
+```
 
 </details>
