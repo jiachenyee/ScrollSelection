@@ -170,7 +170,77 @@ extension ViewController: UIScrollViewDelegate {
 
 </details>
 
-### Customising ScrollSelection (ScrollSelection.Style)
+### Customising ScrollSelection
+
+<details>
+<summary><code>Offset Multiplier</code></summary>
+
+#### Summary
+Y-Axis offset between selecting buttons
+
+#### Declaration
+```swift
+var offsetMultiplier: CGFloat!
+```
+
+#### Discussion
+Should be automatically set in by `init` or the [UIViewController Implementation](#uiviewcontroller-extension-for-quick-set-up)
+
+</details>
+
+<details>
+<summary><code>Scroll View</code></summary>
+
+#### Summary
+Target UIScrollView for Scroll Selection
+
+#### Declaration
+```swift
+var scrollView: UIScrollView?
+```
+
+#### Discussion
+Should be automatically set in by `init` or the UIViewController Implementation
+
+Scroll Selection will ignore all scrollViews except for the targetted one.
+
+</details>
+
+<details>
+<summary><code>Haptic Style</code></summary>
+
+#### Summary
+Haptic feedback styles
+
+#### Declaration
+```swift
+var hapticStyle: HapticsStyle = .normal
+```
+
+#### Discussion
+It uses `.normal` as default value. 
+
+</details>
+
+<details>
+<summary><code>Style</code></summary>
+
+#### Summary
+Current scroll selection style
+
+#### Declaration
+```swift
+var style: [Style]!
+```
+
+#### Discussion
+Should be automatically set in by `init` or the UIViewController Implementation. 
+
+Refer to Scroll Selection Styles for the various styles
+
+</details>
+
+### Scroll Selection Styles
 
 <details>
 <summary><code>highlight</code></summary>
@@ -210,8 +280,7 @@ public static func circularHighlight(using color: UIColor = .systemGray4,
     - Color of highlight
     - Default Value: `.systemGray4` with alpha of 0.7
 - `expands`
-    - 
-    
+    - If true, circular highlights will expand radially to show emphasis on the button as the user scrolls up. Otherwise, it will stay static and the highlight will not expand.    
 
 #### Returns
 A scroll selection style
