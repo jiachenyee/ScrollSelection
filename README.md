@@ -81,7 +81,7 @@ Update bar buttons with Scroll Selection
 func updateBarButtons(barButtonSide direction: ScrollSelection.Direction = .all)
 ```
 
-### Discussion
+#### Discussion
 Call this function whenever a change is made to the navigation bar buttons
 
 #### Parameters
@@ -103,10 +103,10 @@ Update ScrollSelection when the scrollview scrolls
 func didScroll()
 ```
 
-### Discussion
+#### Discussion
 Updates scroll selection by highlighting or removing highlights on corresponding buttons
 
-### Usage
+#### Usage
 To be called in `scrollViewDidScroll` function that is part of `UIScrollViewDelegate`
 ```swift
 extension ViewController: UIScrollViewDelegate {
@@ -129,10 +129,10 @@ Update ScrollSelection when user stops dragging scrollView
 func didEndDragging()
 ```
 
-### Discussion
+#### Discussion
 Called when scrollView is released (ends dragging) and thus, scroll selection will select the corresponding bar button
 
-### Usage
+#### Usage
 To be called in `scrollViewDidEndDragging` function that is part of `UIScrollViewDelegate`
 ```swift
 extension ViewController: UIScrollViewDelegate {
@@ -155,10 +155,10 @@ Update ScrollSelection once the scrollView stops decelerating
 func didEndDecelerating()
 ```
 
-### Discussion
+#### Discussion
 Called when scrollView is ends deceerating and thus, scroll selection will reset to original state
 
-### Usage
+#### Usage
 To be called in `scrollViewDidEndDecelerating` function that is part of `UIScrollViewDelegate`
 ```swift
 extension ViewController: UIScrollViewDelegate {
@@ -167,5 +167,53 @@ extension ViewController: UIScrollViewDelegate {
     }
 }
 ```
+
+</details>
+
+### Customising ScrollSelection (ScrollSelection.Style)
+
+<details>
+<summary><code>highlight</code></summary>
+
+#### Summary
+Changes the Button tint color during Scroll Selection
+
+#### Declaration
+```swift
+public static func highlight(using color: UIColor = UIColor.systemBlue.withAlphaComponent(0.7)) -> Style
+```
+
+#### Parameters
+- `using color`
+    - Color to change to
+    - Default Value: `.systemBlue` with alpha of 0.7
+
+#### Returns
+A scroll selection style
+
+</details>
+
+<details>
+<summary><code>circularHighlight</code></summary>
+
+#### Summary
+Adds a circular highlight/background to the button that is being selected
+
+#### Declaration
+```swift
+public static func circularHighlight(using color: UIColor = .systemGray4,
+                                     expands: Bool = true) -> Style
+```
+
+#### Parameters
+- `using color`
+    - Color of highlight
+    - Default Value: `.systemGray4` with alpha of 0.7
+- `expands`
+    - 
+    
+
+#### Returns
+A scroll selection style
 
 </details>
