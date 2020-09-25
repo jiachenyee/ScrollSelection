@@ -544,7 +544,7 @@ extension ScrollSelection: CustomDebugStringConvertible, CustomStringConvertible
 public extension ScrollSelection {
     
     /// Customise Scroll Selection using `Style` to change colors, animations and more.
-    public struct Style {
+    struct Style {
         
         public var rawValue: Int
         
@@ -592,7 +592,7 @@ public extension ScrollSelection {
     
     
     /// Indicate the side(s) to update UIBarButtonItems using directions
-    public struct Direction: OptionSet {
+    struct Direction: OptionSet {
         
         public var rawValue: Int
         
@@ -611,7 +611,7 @@ public extension ScrollSelection {
     }
     
     /// The styles to play the haptic feedback which is used to alert the user of a new selection
-    public enum HapticsStyle {
+    enum HapticsStyle {
         
         /// Normal Haptic Style
         case normal
@@ -636,7 +636,7 @@ public extension ScrollSelection {
         case variableDecreasing
     }
     
-    public enum SelectionView: Equatable {
+    enum SelectionView: Equatable {
         
         case leftBarButtons
         case rightBarButtons
