@@ -64,9 +64,24 @@ func createScrollSelection(withOffset offsetMultiplier: CGFloat = 70,
 - `usingStyle style`
     - Scroll Selection Style. Use `ScrollSelection.Style.defaultStyle` for default implementation or remove this parameter
     - Default Value: `ScrollSelection.Style.defaultStyle`
+    - Refer to [Style](#scroll-selection-style) for the various style information
     
 #### Returns
 An instance of Scroll Selection that is already set up
+
+#### Usage
+In your `viewDidLoad` function,
+```swift
+override func viewDidLoad() {
+    super.viewDidLoad()
+    
+    // Default implementation
+    scrollSelection = createScrollSelection() 
+
+    // Custom implementation
+    scrollSelection = createScrollSelection(withOffset: 70, usingStyle: ScrollSelection.Style.defaultStyle) 
+}
+```
 
 </details>
 
@@ -89,6 +104,12 @@ Call this function whenever a change is made to the navigation bar buttons
     - `.left` corresponds to the left bar buttons, `.right` corresponds to the right bar buttons, `.all` updates all buttons.
     - Default Value: .all
     - Refer to [Direction](#direction) for the various direction information
+
+#### Usage
+After updating left bar button items,
+```swift
+scrollSelection.updateBarButtons(barButtonSide: .left)
+```
 
 </details>
 
@@ -200,10 +221,20 @@ Target UIScrollView for Scroll Selection
 var scrollView: UIScrollView?
 ```
 
+#### Usage
+```swift
+
+```
+
 #### Discussion
 Should be automatically set in by `init` or the [UIViewController Implementation](#uiviewcontroller-extension-for-quick-set-up)
 
 Scroll Selection will ignore all scrollViews except for the targetted one.
+
+#### Usage
+```swift
+scrollSelection.scrollView = myScrollView
+```
 
 </details>
 
@@ -223,6 +254,11 @@ It uses `.variableIncreasing` as default value.
 
 Refer to [HapticsStyle](#haptic-styles) for the various styles
 
+#### Usage
+```swift
+scrollSelection.hapticStyle = .variableIncreasing
+```
+
 </details>
 
 <details>
@@ -241,12 +277,21 @@ Should be automatically set in by `init` or the [UIViewController Implementation
 
 Refer to [Scroll Selection Styles](#scroll-selection-styles) for the various styles
 
+#### Usage
+```swift
+// Using the default style
+scrollSelection.style = ScrollSelection.Style.defaultStyle 
+
+// Using a custom style
+scrollSelection.style = [.circularHighlight(using: .systemRed, expands: true)]
+```
+
 </details>
 
 ### Scroll Selection Styles
 
 <details>
-<summary><code>highlight</code></summary>
+<summary><code>Highlight</code></summary>
 
 #### Summary
 Changes the Button tint color during Scroll Selection
@@ -267,7 +312,7 @@ A scroll selection style
 </details>
 
 <details>
-<summary><code>circularHighlight</code></summary>
+<summary><code>Circular Highlight</code></summary>
 
 #### Summary
 Adds a circular highlight/background to the button that is being selected
@@ -384,6 +429,34 @@ Update Both Left and Right Bar Buttons
 #### Declaration
 ```swift
 public static let all: Direction = [.left, .right]
+```
+
+</details>
+
+### Activating and Deactivating
+
+<details>
+<summary><code>Activate</code></summary>
+
+#### Summary
+Activate Scroll Selection
+
+#### Declaration
+```swift
+func activate()
+```
+
+</details>
+
+<details>
+<summary><code>Deactivate</code></summary>
+
+#### Summary
+Deactivate Scroll Selection
+
+#### Declaration
+```swift
+func deactivate()
 ```
 
 </details>

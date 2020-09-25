@@ -50,7 +50,7 @@ public class ScrollSelection {
     var scrollView: UIScrollView?
     
     /// Haptic feedback styles
-    var hapticStyle: HapticsStyle = HapticsStyle.normal(style: .medium)
+    var hapticStyle: HapticsStyle = .normal
     
     /// Activate or deactivate scroll selection
     var isActive = true
@@ -100,28 +100,23 @@ public class ScrollSelection {
     /// Getting the selected button based on the current section
     /// - Parameter section: Current selected section
     /// - Returns: The previous and currently selected bar buttons
-    func getSelectedButtons(atSection section: Int) -> (previous: UIBarButtonItem?, current: UIBarButtonItem?){
+    func getSelectedButtons(atSection section: Int) -> (previous: [UIBarButtonItem], current: UIBarButtonItem?){
         let leftBarButtons = parent.navigationItem.leftBarButtonItems ?? []
         let rightBarButtons = parent.navigationItem.rightBarButtonItems ?? []
         
-        var selectedBarButton: UIBarButtonItem?
-        var previousBarButton: UIBarButtonItem?
+        let allBarButtons = rightBarButtons + leftBarButtons.reversed()
         
-        if rightBarButtons.count - 1 >= section {
-            
-            selectedBarButton = rightBarButtons[section]
-            
-            if section > 0 {
-                previousBarButton = rightBarButtons[section - 1]
-            }
-            
-        } else {
-            
-            selectedBarButton = leftBarButtons[section - rightBarButtons.count]
-            
-            if section > 0 {
-                previousBarButton = leftBarButtons[section - 1 - rightBarButtons.count]
-            }
+        var selectedBarButton: UIBarButtonItem?
+        var previousBarButton: [UIBarButtonItem] = []
+        
+        selectedBarButton = allBarButtons[section]
+        
+        if section > 0 {
+            previousBarButton.append(allBarButtons[section - 1])
+        }
+        
+        if section + 1 < allBarButtons.count {
+            previousBarButton.append(allBarButtons[section + 1])
         }
         
         return (previous: previousBarButton, current: selectedBarButton)
@@ -198,8 +193,8 @@ public class ScrollSelection {
         currentSection = section
         
         switch hapticStyle {
-        case HapticsStyle.normal(let feedback):
-            UIImpactFeedbackGenerator(style: feedback).impactOccurred()
+        case HapticsStyle.normal:
+            UISelectionFeedbackGenerator().selectionChanged()
             
         case .variableDecreasing:
             UIImpactFeedbackGenerator(style: styles.reversed()[index]).impactOccurred()
@@ -334,7 +329,7 @@ extension ScrollSelection {
                         let color = style.color ?? UIColor.red
                         let expands = style.expands ?? true
                         
-                        shapeLayer.fillColor = color.cgColor
+                        shapeLayer.fillColor = color.withAlphaComponent(multiplier).cgColor
                         
                         if expands {
                             shapeLayer.path = getExpandingCirclePath(with: multiplier, button: button)
@@ -346,8 +341,10 @@ extension ScrollSelection {
                 
                 playHaptics(withSection: section)
 
-                if let button = buttons.previous?.customView as? UIButton {
-                    deselectCustomButton(button)
+                buttons.previous.forEach {
+                    if let button = $0.customView as? UIButton {
+                        deselectCustomButton(button)
+                    }
                 }
 
             } else {
@@ -475,15 +472,20 @@ extension ScrollSelection {
         
         public var rawValue: Int
         
+        /// Storing color value as parameter
         var color: UIColor?
+        
+        /// Storing expanding style as parameter
         var expands: Bool?
         
+        /// Get `Style` using raw value
+        /// - Parameter rawValue: Raw value for style
         public init(rawValue: Int) {
             self.rawValue = rawValue
         }
         
         /// Changes the Button color during Scroll Selection
-        /// - Parameter color: Color to change to. Default is .systemBlue with alpha of 0.7
+        /// - Parameter color: Color to change to. Default is `.systemBlue` with alpha of 0.7
         /// - Returns: A scroll selection style
         public static func highlight(using color: UIColor = UIColor.systemBlue.withAlphaComponent(0.7)) -> Style {
             var style = Style(rawValue: 1 << 0)
@@ -536,8 +538,7 @@ extension ScrollSelection {
     public enum HapticsStyle {
         
         /// Normal Haptic Style
-        /// - Parameter style: Feedback style based on UIImpactFeedbackGenerator
-        case normal(style: UIImpactFeedbackGenerator.FeedbackStyle = .light)
+        case normal
         
         /// No haptics
         case disabled
@@ -545,8 +546,8 @@ extension ScrollSelection {
         /// Default style, Haptic feedback becomes more pronounced as user scrolls up
         ///
         /// ```
-        /// Last Button -> First Button
-        /// Weak        -> Strong
+        /// First Button -> Last Button
+        /// Weak         -> Strong
         /// ```
         case variableIncreasing
         
@@ -573,7 +574,7 @@ public extension UIViewController {
     ///   or remove this parameter
     ///
     /// - Returns: An instance of Scroll Selection that is already set up
-    func createScrollSelection(withOffset offsetMultiplier: CGFloat = 70,
+    func createScrollSelection(withOffset offsetMultiplier: CGFloat = 50,
                                usingStyle style: [ScrollSelection.Style] = ScrollSelection.Style.defaultStyle) -> ScrollSelection {
         
         updateBarButtons()
