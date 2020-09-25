@@ -80,7 +80,9 @@ public class ScrollSelection {
     /// - Parameter offset: Y-axis of the scrollView's content offset
     /// - Returns: Current section or `nil` if nothing is selected
     func getCurrentSection(_ offset: CGFloat) -> Int? {
-        let buttons = (parent.navigationItem.leftBarButtonItems ?? []) + (parent.navigationItem.rightBarButtonItems ?? [])
+        let navigationItem = parent.navigationItem
+        
+        let buttons = (navigationItem.leftBarButtonItems ?? []) + (navigationItem.rightBarButtonItems ?? [])
         
         var currentSection = Int(floor(offset / -offsetMultiplier))
         
@@ -390,12 +392,13 @@ extension ScrollSelection {
             if let section = getCurrentSection(offset) {
                 let buttons = rightBarButtons + leftBarButtons
                 if let button = buttons[section].customView as? UIButton {
-                    if let action = button.actions(forTarget: parent,
-                                                   forControlEvent: .touchUpInside)?.first {
-                        
-                        parent.performSelector(onMainThread: Selector(action),
-                                               with: nil,
-                                               waitUntilDone: true)
+                    if let actions = button.actions(forTarget: parent,
+                                                   forControlEvent: .touchUpInside) {
+                        actions.forEach {
+                            parent.performSelector(onMainThread: Selector($0),
+                                                   with: nil,
+                                                   waitUntilDone: true)
+                        }
                     }
                 }
                 
