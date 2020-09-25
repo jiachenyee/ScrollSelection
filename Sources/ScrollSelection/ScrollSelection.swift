@@ -38,19 +38,19 @@ public class ScrollSelection {
     static let edgeOffset: CGFloat = 8
     
     /// Parent ViewController to be targetted
-    var parent: UIViewController!
+    open var parent: UIViewController!
     
     /// Current scroll selection style
-    var style: [Style]!
+    open var style: [Style]!
     
     /// Y-Axis offset between selecting buttons
-    var offsetMultiplier: CGFloat!
+    open var offsetMultiplier: CGFloat!
     
     /// Target ScrollView for Scroll Selection
-    var scrollView: UIScrollView?
+    open var scrollView: UIScrollView?
     
     /// Haptic feedback styles
-    var hapticStyle: HapticsStyle = .normal
+    open var hapticStyle: HapticsStyle = .normal
     
     /// Activate or deactivate scroll selection
     var isActive = true
@@ -60,7 +60,7 @@ public class ScrollSelection {
     var currentSection: Int = -1
     
     /// Create custom button sequence
-    var selectionSequence: [SelectionView] = [.rightBarButtons, .leftBarButtons]
+    open var selectionSequence: [SelectionView] = [.rightBarButtons, .leftBarButtons]
     
     /// Set up scroll selection
     /// - Parameters:
@@ -281,7 +281,7 @@ public class ScrollSelection {
 }
 
 // MARK: - Activating/Deactivating
-extension ScrollSelection {
+public extension ScrollSelection {
     /// Deactivate Scroll Selection
     func deactivate() {
         isActive = false
@@ -294,7 +294,7 @@ extension ScrollSelection {
 }
 
 // MARK: - Deselect
-extension ScrollSelection {
+public extension ScrollSelection {
     func deselectAll(views: [UIView]) {
         views.forEach {
             deselectView($0)
@@ -338,7 +338,7 @@ extension ScrollSelection {
 }
 
 // MARK: - ScrollView Delegate
-extension ScrollSelection {
+public extension ScrollSelection {
     /// Update ScrollSelection when the scrollview scrolls
     ///
     /// Updates scroll selection by highlighting or removing highlights
@@ -541,7 +541,7 @@ extension ScrollSelection: CustomDebugStringConvertible, CustomStringConvertible
 }
 
 // MARK: - Enumerations and Structures
-extension ScrollSelection {
+public extension ScrollSelection {
     
     /// Customise Scroll Selection using `Style` to change colors, animations and more.
     public struct Style {

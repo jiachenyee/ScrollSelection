@@ -17,7 +17,6 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         
         // Setting up Scoll Selection
         scrollSelection = createScrollSelection()
-        
     }
 
     // Actions when clicking on buttons
