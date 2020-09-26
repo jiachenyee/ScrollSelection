@@ -5,6 +5,8 @@ Select `UIBarButtonItem`s in Navigation Bars by Scrolling Up.
 
 No need for *Reachability* or *awkwardly holding your phone to reach a button in the top corner*.
 
+<img src="Assets/demo.gif" width="300">
+
 ---
 
 ## Quick-Start Guide
