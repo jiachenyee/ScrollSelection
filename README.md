@@ -41,6 +41,19 @@ func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
 }
 ```
 
+### Scroll Selection using UIButton/UISearchBar
+```swift
+                                     // Add a search bar to scrollSelection
+scrollSelection.selectionSequence = [.searchBar(mySearchBar), 
+
+                                     // Add a custom button
+                                     .button(myButton),
+                                     
+                                     // Default, right and left bar buttons
+                                     .rightBarButtons,
+                                     .leftBarButtons]
+```
+
 ## Customisations and Documentation
 > Note: For updated documentation information, make use of the Quick Help section (or ⌥-click the declaration)
 
