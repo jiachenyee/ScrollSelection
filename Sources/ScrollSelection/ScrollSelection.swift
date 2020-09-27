@@ -52,6 +52,9 @@ public class ScrollSelection {
     /// Haptic feedback styles
     open var hapticStyle: HapticsStyle = .normal
     
+    /// Default Tint Color
+    open var tintColor: UIColor = .systemBlue
+    
     /// Activate or deactivate scroll selection
     var isActive = true
     
@@ -316,7 +319,7 @@ public extension ScrollSelection {
     func deselectCustomButton(_ button: UIButton) {
         if let shapeLayer = button.layer.sublayers?.first as? CAShapeLayer {
             
-            button.tintColor = .systemBlue
+            button.tintColor = tintColor
             
             shapeLayer.path = CGPath(roundedRect: .zero,
                                      cornerWidth: .zero,
@@ -408,7 +411,7 @@ public extension ScrollSelection {
                     
                     // Adding highlight style
                     if let style = highlightStyle {
-                        let color = style.color ?? UIColor.systemBlue.withAlphaComponent(0.7)
+                        let color = style.color ?? tintColor.withAlphaComponent(0.7)
                         
                         button.tintColor = color
                     }
@@ -418,8 +421,13 @@ public extension ScrollSelection {
                         
                         let color = style.color ?? UIColor.red
                         let expands = style.expands ?? true
+                        let fades = style.fades ?? true
                         
-                        shapeLayer.fillColor = color.withAlphaComponent(multiplier).cgColor
+                        if fades {
+                            shapeLayer.fillColor = color.withAlphaComponent(multiplier).cgColor
+                        } else {
+                            shapeLayer.fillColor = color.cgColor
+                        }
                         
                         if expands {
                             shapeLayer.path = getExpandingCirclePath(with: multiplier, button: button)
@@ -554,6 +562,9 @@ public extension ScrollSelection {
         /// Storing expanding style as parameter
         var expands: Bool?
         
+        /// Storing fade style as parameter
+        var fades: Bool?
+        
         /// Get `Style` using raw value
         /// - Parameter rawValue: Raw value for style
         public init(rawValue: Int) {
@@ -575,19 +586,25 @@ public extension ScrollSelection {
         ///   - color: Color of the highlight
         ///   - expands: If true, circular highlights will expand radially to show emphasis on the button as
         ///    the user scrolls up. Otherwise, it will stay static and the highlight will not expand.
+        ///   - fades: If true, circular highlight background will fade as the user scrolls up.
+        ///    Otherwise, it will jump from one to another, without fading.
         /// - Returns: A scroll selection style
         public static func circularHighlight(using color: UIColor = .systemGray5,
-                                             expands: Bool = true) -> Style {
+                                             expands: Bool = true,
+                                             fades: Bool = true) -> Style {
+            
             var style = Style(rawValue: 1 << 1)
+            
             style.color = color
             style.expands = expands
+            style.fades = fades
             
             return style
         }
         
         /// Default scroll selection style
         public static let defaultStyle: [Style] = [highlight(),
-                                                 circularHighlight()]
+                                                   circularHighlight()]
     }
     
     

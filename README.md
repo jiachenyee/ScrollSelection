@@ -335,7 +335,8 @@ Adds a circular highlight/background to the button that is being selected
 #### Declaration
 ```swift
 public static func circularHighlight(using color: UIColor = .systemGray4,
-                                     expands: Bool = true) -> Style
+                                     expands: Bool = true, 
+                                     fades: Bool = true) -> Style
 ```
 
 #### Parameters
@@ -344,6 +345,8 @@ public static func circularHighlight(using color: UIColor = .systemGray4,
     - Default Value: `.systemGray4` with alpha of 0.7
 - `expands`
     - If true, circular highlights will expand radially to show emphasis on the button as the user scrolls up. Otherwise, it will stay static and the highlight will not expand.    
+-  `fades`
+    - If true, circular highlight background will fade as the user scrolls up. Otherwise, it will jump from one to another, without fading.
 
 #### Returns
 A scroll selection style
