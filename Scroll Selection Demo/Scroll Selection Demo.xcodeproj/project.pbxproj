@@ -8,6 +8,16 @@
 
 /* Begin PBXBuildFile section */
 		3277F7F42517C6DF00A5E8C0 /* ScrollSelection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3277F7F32517C6DF00A5E8C0 /* ScrollSelection.swift */; };
+		32C9926A25215FBB0072B3C7 /* ViewController+ScrollSelection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32C9926925215FBB0072B3C7 /* ViewController+ScrollSelection.swift */; };
+		32C9926F25215FFF0072B3C7 /* Debug.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32C9926E25215FFF0072B3C7 /* Debug.swift */; };
+		32C992742521603C0072B3C7 /* ScrollViewDelegate+ScrollSelection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32C992732521603C0072B3C7 /* ScrollViewDelegate+ScrollSelection.swift */; };
+		32C99279252160F20072B3C7 /* Deselect.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32C99278252160F20072B3C7 /* Deselect.swift */; };
+		32C99288252161760072B3C7 /* Style.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32C99287252161760072B3C7 /* Style.swift */; };
+		32C9928D252161820072B3C7 /* Activation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32C9928C252161820072B3C7 /* Activation.swift */; };
+		32C99293252161D70072B3C7 /* Direction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32C99292252161D70072B3C7 /* Direction.swift */; };
+		32C9929B252161E30072B3C7 /* HapticStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32C9929A252161E30072B3C7 /* HapticStyle.swift */; };
+		32C992A02521622D0072B3C7 /* SelectionViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32C9929F2521622D0072B3C7 /* SelectionViews.swift */; };
+		32C992A525216CBC0072B3C7 /* CGPath+ScrollSelection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32C992A425216CBC0072B3C7 /* CGPath+ScrollSelection.swift */; };
 		32FBFD412510F91E00CF7DA1 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32FBFD402510F91E00CF7DA1 /* AppDelegate.swift */; };
 		32FBFD432510F91E00CF7DA1 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32FBFD422510F91E00CF7DA1 /* SceneDelegate.swift */; };
 		32FBFD452510F91E00CF7DA1 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32FBFD442510F91E00CF7DA1 /* ViewController.swift */; };
@@ -37,6 +47,16 @@
 
 /* Begin PBXFileReference section */
 		3277F7F32517C6DF00A5E8C0 /* ScrollSelection.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ScrollSelection.swift; sourceTree = "<group>"; };
+		32C9926925215FBB0072B3C7 /* ViewController+ScrollSelection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ViewController+ScrollSelection.swift"; sourceTree = "<group>"; };
+		32C9926E25215FFF0072B3C7 /* Debug.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Debug.swift; sourceTree = "<group>"; };
+		32C992732521603C0072B3C7 /* ScrollViewDelegate+ScrollSelection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ScrollViewDelegate+ScrollSelection.swift"; sourceTree = "<group>"; };
+		32C99278252160F20072B3C7 /* Deselect.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Deselect.swift; sourceTree = "<group>"; };
+		32C99287252161760072B3C7 /* Style.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Style.swift; sourceTree = "<group>"; };
+		32C9928C252161820072B3C7 /* Activation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Activation.swift; sourceTree = "<group>"; };
+		32C99292252161D70072B3C7 /* Direction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Direction.swift; sourceTree = "<group>"; };
+		32C9929A252161E30072B3C7 /* HapticStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HapticStyle.swift; sourceTree = "<group>"; };
+		32C9929F2521622D0072B3C7 /* SelectionViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectionViews.swift; sourceTree = "<group>"; };
+		32C992A425216CBC0072B3C7 /* CGPath+ScrollSelection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CGPath+ScrollSelection.swift"; sourceTree = "<group>"; };
 		32FBFD3D2510F91E00CF7DA1 /* Scroll Selection Demo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Scroll Selection Demo.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		32FBFD402510F91E00CF7DA1 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		32FBFD422510F91E00CF7DA1 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -82,9 +102,35 @@
 			isa = PBXGroup;
 			children = (
 				3277F7F32517C6DF00A5E8C0 /* ScrollSelection.swift */,
+				32C99278252160F20072B3C7 /* Deselect.swift */,
+				32C9926E25215FFF0072B3C7 /* Debug.swift */,
+				32C9928C252161820072B3C7 /* Activation.swift */,
+				32C99291252161B80072B3C7 /* Options and Customisations */,
+				32C99283252161450072B3C7 /* UIKit Compatibility */,
 			);
 			name = ScrollSelection;
 			path = ../../Sources/ScrollSelection;
+			sourceTree = "<group>";
+		};
+		32C99283252161450072B3C7 /* UIKit Compatibility */ = {
+			isa = PBXGroup;
+			children = (
+				32C992732521603C0072B3C7 /* ScrollViewDelegate+ScrollSelection.swift */,
+				32C9926925215FBB0072B3C7 /* ViewController+ScrollSelection.swift */,
+				32C992A425216CBC0072B3C7 /* CGPath+ScrollSelection.swift */,
+			);
+			path = "UIKit Compatibility";
+			sourceTree = "<group>";
+		};
+		32C99291252161B80072B3C7 /* Options and Customisations */ = {
+			isa = PBXGroup;
+			children = (
+				32C99287252161760072B3C7 /* Style.swift */,
+				32C99292252161D70072B3C7 /* Direction.swift */,
+				32C9929A252161E30072B3C7 /* HapticStyle.swift */,
+				32C9929F2521622D0072B3C7 /* SelectionViews.swift */,
+			);
+			path = "Options and Customisations";
 			sourceTree = "<group>";
 		};
 		32FBFD342510F91E00CF7DA1 = {
@@ -271,9 +317,19 @@
 			buildActionMask = 2147483647;
 			files = (
 				32FBFD452510F91E00CF7DA1 /* ViewController.swift in Sources */,
+				32C992742521603C0072B3C7 /* ScrollViewDelegate+ScrollSelection.swift in Sources */,
+				32C9929B252161E30072B3C7 /* HapticStyle.swift in Sources */,
+				32C99279252160F20072B3C7 /* Deselect.swift in Sources */,
+				32C992A02521622D0072B3C7 /* SelectionViews.swift in Sources */,
+				32C9926A25215FBB0072B3C7 /* ViewController+ScrollSelection.swift in Sources */,
 				3277F7F42517C6DF00A5E8C0 /* ScrollSelection.swift in Sources */,
 				32FBFD412510F91E00CF7DA1 /* AppDelegate.swift in Sources */,
+				32C992A525216CBC0072B3C7 /* CGPath+ScrollSelection.swift in Sources */,
+				32C99293252161D70072B3C7 /* Direction.swift in Sources */,
 				32FBFD432510F91E00CF7DA1 /* SceneDelegate.swift in Sources */,
+				32C99288252161760072B3C7 /* Style.swift in Sources */,
+				32C9926F25215FFF0072B3C7 /* Debug.swift in Sources */,
+				32C9928D252161820072B3C7 /* Activation.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

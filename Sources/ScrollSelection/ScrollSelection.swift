@@ -87,18 +87,21 @@ public class ScrollSelection {
     /// - Returns: Current section or `nil` if nothing is selected
     func getCurrentSection(_ offset: CGFloat) -> Int? {
         
-        let buttons = getViews()
+        /// Getting all the views
+        let views = getViews()
         
-        var currentSection = Int(floor(offset / -offsetMultiplier))
+        /// Estimated section is based on the current calculated section
+        let estimatedSection = Int(floor(offset / -offsetMultiplier))
         
-        let max = buttons.count
+        /// Current section is the actual selected section
+        var currentSection = min(views.count, estimatedSection)
         
-        if currentSection > max {
-            currentSection = max
-        } else if currentSection <= 0 {
+        // If currentSection is less than or equals zero, it indicates no selection
+        if currentSection <= 0 {
             return nil
         }
         
+        // Subtract one to make current section start from zero
         currentSection -= 1
         
         return currentSection
@@ -127,33 +130,53 @@ public class ScrollSelection {
         return (previous: previousView, current: selectedView)
     }
     
+    /// Get all scroll selection views
+    /// - Returns: Scroll Selection Views
     func getViews() -> [UIView] {
         
+        // Getting the navigation item from parent view controller
         let navigationItem = parent.navigationItem
         
+        /// Store `UIView`s compatible with Scroll Selection
         var views: [UIView] = []
         
+        /// Left bar button items
+        let leftBarButtons = navigationItem.leftBarButtonItems?.reversed() ?? []
+        
+        /// Right bar button items
+        let rightBarButtons = navigationItem.rightBarButtonItems ?? []
+        
+        // Loop through selection sequences, for each, append the
+        // corresponding views to the views variable
         selectionSequence.forEach {
             switch $0 {
             case .leftBarButtons, .rightBarButtons:
                 
-                let leftBarButtons = navigationItem.leftBarButtonItems?.reversed() ?? []
-                let rightBarButtons = navigationItem.rightBarButtonItems ?? []
-                
                 let barButtons = $0 == .leftBarButtons ? leftBarButtons : rightBarButtons
                 
+                // Converting the UIBarButtonItems to UIButtons by getting
+                // the customViews
                 let convertedButtons = barButtons.map {
                     $0.customView as? UIButton
                 }.filter {
+                    
+                    // Filtering out the values that are nil so I can safely
+                    // force unwrap to [UIButton]
                     $0 != nil
+                    
                 } as! [UIButton]
                 
+                // Adding the convertedButtons to the views
                 views += convertedButtons
                 
             case .button(let button):
+                
+                // Adding a custom button (not bar button item)
                 views.append(button)
                 
             case .searchBar(let searchBar):
+                
+                // Adding a search bar
                 views.append(searchBar)
             }
         }
@@ -165,16 +188,27 @@ public class ScrollSelection {
     /// - Parameter button: Button to inherit path
     /// - Returns: CGPath that can be added into the layer
     func getStaticCirclePath(button: UIView) -> CGPath {
-        
+        /// Maximum scroll selection bubble width
         let maxWidth = button.frame.width + ScrollSelection.edgeOffset * 2
+        
+        /// Maximum scroll selection bubble height
         let maxHeight = button.frame.height + ScrollSelection.edgeOffset * 2
         
-        return CGPath(roundedRect: .init(x: -ScrollSelection.edgeOffset,
-                                         y: -ScrollSelection.edgeOffset,
-                                         width: maxWidth,
-                                         height: maxHeight),
-                      cornerWidth: maxHeight / 2,
-                      cornerHeight: maxHeight / 2,
+        /// Corner radii of scroll selectiobn
+        let cornerRadii = min(maxHeight / 2, maxWidth / 2)
+        
+        /// X and Y offsets for scroll selection
+        let edgeOffsets = -ScrollSelection.edgeOffset
+        
+        /// Scroll selection bubble rounded rectangle frame
+        let roundedRectFrame = CGRect(x: edgeOffsets,
+                                      y: edgeOffsets,
+                                      width: maxWidth,
+                                      height: maxHeight)
+        
+        return CGPath(roundedRect: roundedRectFrame,
+                      cornerWidth: cornerRadii,
+                      cornerHeight: cornerRadii,
                       transform: nil)
     }
     
@@ -185,46 +219,73 @@ public class ScrollSelection {
     /// - Returns: CGPath that can be added into the layer
     func getExpandingCirclePath(with multiplier: CGFloat, button: UIView) -> CGPath {
         
+        /// Maximum scroll selection bubble width
         let maxWidth = button.frame.width + ScrollSelection.edgeOffset * 2
+        
+        /// Maximum scroll selection bubble height
         let maxHeight = button.frame.height + ScrollSelection.edgeOffset * 2
         
+        /// Current scroll selection bubble width
         let width = maxWidth * multiplier
+        
+        /// Current scroll selection bubble height
         let height = maxHeight * multiplier
         
+        /// X edge offsets such that it the bubble is centered in frame
         let xEdgeOffset: CGFloat = -ScrollSelection.edgeOffset + (maxWidth - width) / 2
+        
+        /// Y edge offsets such that it the bubble is centered in frame
         let yEdgeOffset: CGFloat = -ScrollSelection.edgeOffset + (maxHeight - height) / 2
         
-        return CGPath(roundedRect: .init(x: xEdgeOffset,
-                                         y: yEdgeOffset,
-                                         width: width,
-                                         height: height),
-                      cornerWidth: height / 2,
-                      cornerHeight: height / 2,
+        /// Rounded rectangle frame for scroll selection bubble
+        let roundedRectFrame = CGRect(x: xEdgeOffset,
+                                      y: yEdgeOffset,
+                                      width: width,
+                                      height: height)
+        
+        /// Corner radii of scroll selectiobn
+        let cornerRadii = min(height / 2, width / 2)
+        
+        return CGPath(roundedRect: roundedRectFrame,
+                      cornerWidth: cornerRadii,
+                      cornerHeight: cornerRadii,
                       transform: nil)
     }
     
     /// Play haptic feedback based on current section
     ///
-    /// This function also ensures that haptic feedback is not played multiple times in the same section
+    /// This function also ensures that haptic feedback is not played
+    /// multiple times in the same section
     ///
     /// - Parameter section: Current section user is on
     func playHaptics(withSection section: Int) {
         let styles: [UIImpactFeedbackGenerator.FeedbackStyle] = [.soft, .rigid, .medium, .light, .heavy]
         
+        // Index of
         let index = section % styles.count
         
+        // If the haptics have already been played, don't play it again
+        // otherwise it will cause an unpleasant vibration effect that makes
+        // the haptics more of an annoyance
         if currentSection == section { return }
         
+        // Update currentSection with section
         currentSection = section
         
+        // Switch based on haptic style
         switch hapticStyle {
-        case HapticsStyle.normal:
+        case .normal:
+            // Handling normal, just use .selectionChanged for a subtle vibration
             UISelectionFeedbackGenerator().selectionChanged()
             
         case .variableDecreasing:
+            
+            // Reversing the styles to create a decreasing variable style as the user scrolls
             UIImpactFeedbackGenerator(style: styles.reversed()[index]).impactOccurred()
             
         case .variableIncreasing:
+            
+            // Create an increasing variable style as the user scrolls
             UIImpactFeedbackGenerator(style: styles[index]).impactOccurred()
             
         default:
@@ -238,486 +299,52 @@ public class ScrollSelection {
     /// - Returns: UIBarButtonItems that make use of `customView` to show highlights
     static func convertBarButtons(using barButtons: [UIBarButtonItem]) -> [UIBarButtonItem] {
         
+        // Converting UIBarButton items
         let converted: [UIBarButtonItem] = barButtons.map {
             
-            if let image = $0.image?.withConfiguration(UIImage.SymbolConfiguration(scale: .large)) {
+            let button = UIButton()
+            
+            // Symbol configuration for image
+            let symbolConfiguration = UIImage.SymbolConfiguration(scale: .large)
+            
+            if let image = $0.image?.withConfiguration(symbolConfiguration) {
                 
-                let button = UIButton()
-                
+                // If there is an image, create a UIButton just with the image
                 button.setImage(image, for: .normal)
                 
-                button.sizeToFit()
-                
-                if let target = $0.target, let action = $0.action {
-                    button.addTarget(target, action: action, for: .touchUpInside)
-                }
-                
-                // Create shape layer to get fill color
-                let layer: CAShapeLayer = .init()
-                
-                layer.path = CGPath(roundedRect: .zero,
-                                    cornerWidth: .zero,
-                                    cornerHeight: .zero,
-                                    transform: nil)
-
-                button.layer.insertSublayer(layer, at: 0)
-                
-                return UIBarButtonItem(customView: button)
-                
             } else if let title = $0.title {
-                let button = UIButton()
                 
+                // Otherwise, use a title
                 button.setTitle(title, for: .normal)
                 
-                if let target = $0.target, let action = $0.action {
-                    button.addTarget(target, action: action, for: .touchUpInside)
-                }
-                
-                return UIBarButtonItem(customView: button)
             } else {
+                
+                // Else just return the current bar button,
+                // probably won't be compatible with scroll selection
                 return $0
             }
+            
+            // Adding target to the button so an action will be called
+            // when the new button gets selected
+            if let target = $0.target, let action = $0.action {
+                button.addTarget(target, action: action, for: .touchUpInside)
+            }
+            
+            // Setting button size to be exactly large enough
+            button.sizeToFit()
+            
+            // Create shape layer to get fill color
+            let layer: CAShapeLayer = .init()
+            
+            // Creating an empty path for the shape layer
+            layer.path = .zero
+
+            // Adding to sublayer
+            button.layer.insertSublayer(layer, at: 0)
+            
+            return UIBarButtonItem(customView: button)
         }
         
         return converted
-    }
-}
-
-// MARK: - Activating/Deactivating
-public extension ScrollSelection {
-    /// Deactivate Scroll Selection
-    func deactivate() {
-        isActive = false
-    }
-    
-    /// Activate Scroll Selection
-    func activate() {
-        isActive = true
-    }
-}
-
-// MARK: - Deselect
-public extension ScrollSelection {
-    func deselectAll(views: [UIView]) {
-        views.forEach {
-            deselectView($0)
-        }
-    }
-    
-    func deselectView(_ view: UIView) {
-        if let button = view as? UIButton {
-            deselectCustomButton(button)
-            
-        } else if let searchBar = view as? UISearchBar {
-            deselectSearchBar(searchBar)
-            
-        }
-    }
-    
-    /// Deselect custom button, reset it to default
-    /// - Parameter button: Button to be deselected
-    func deselectCustomButton(_ button: UIButton) {
-        if let shapeLayer = button.layer.sublayers?.first as? CAShapeLayer {
-            
-            button.tintColor = tintColor
-            
-            shapeLayer.path = CGPath(roundedRect: .zero,
-                                     cornerWidth: .zero,
-                                     cornerHeight: .zero,
-                                     transform: nil)
-        }
-    }
-    
-    func deselectSearchBar(_ searchBar: UISearchBar) {
-        
-        if let shapeLayer = searchBar.searchTextField.superview?.layer.sublayers?.first as? CAShapeLayer {
-            
-            shapeLayer.path = CGPath(roundedRect: .zero,
-                                     cornerWidth: .zero,
-                                     cornerHeight: .zero,
-                                     transform: nil)
-        }
-    }
-}
-
-// MARK: - ScrollView Delegate
-public extension ScrollSelection {
-    /// Update ScrollSelection when the scrollview scrolls
-    ///
-    /// Updates scroll selection by highlighting or removing highlights
-    /// on corresponding buttons
-    ///
-    /// # Usage
-    /// To be called in `scrollViewDidScroll` function that is part of `UIScrollViewDelegate`
-    ///
-    /// ```swift
-    /// extension ViewController: UIScrollViewDelegate {
-    ///     func scrollViewDidScroll(_ scrollView: UIScrollView) {
-    ///         scrollSelection.didScroll()
-    ///     }
-    /// }
-    /// ```
-    func didScroll() {
-        
-        // If scroll selection is inactive, don't scroll select
-        if !isActive { return }
-        
-        if let offset = scrollView?.contentOffset.y {
-            
-            if let section = getCurrentSection(offset) {
-                
-                // Get current and previous buttons
-                let buttons = getSelectedViews(atSection: section)
-
-                if let button = buttons.current {
-                    let shapeLayer: CAShapeLayer = {
-                        if let layer = button.layer.sublayers?.first as? CAShapeLayer {
-                            return layer
-                        }
-                        
-                        var layerView = button
-                        
-                        if let searchBar = button as? UISearchBar {
-                            layerView = searchBar.searchTextField.superview!
-                            
-                            if let layer = layerView.layer.sublayers?.first as? CAShapeLayer {
-                                return layer
-                            }
-                        }
-                        
-                        let layer: CAShapeLayer = .init()
-                        
-                        layer.path = CGPath(roundedRect: .zero,
-                                            cornerWidth: .zero,
-                                            cornerHeight: .zero,
-                                            transform: nil)
-
-                        layerView.layer.insertSublayer(layer, at: 0)
-                        
-                        return layer
-                    }()
-                    
-                    var multiplier = (offset / -offsetMultiplier) - CGFloat(section + 1)
-                    
-                    if multiplier > 1 {
-                        multiplier = 1
-                    }
-                    
-                    // Getting the highlight style
-                    let highlightStyle = style.filter { $0.rawValue == 1 }.first
-                    
-                    // Getting the circular highlight style
-                    let circularHighlightStyle = style.filter { $0.rawValue == 2 }.first
-                    
-                    // Adding highlight style
-                    if let style = highlightStyle {
-                        let color = style.color ?? tintColor.withAlphaComponent(0.7)
-                        
-                        button.tintColor = color
-                    }
-                    
-                    // Adding circular highlight style
-                    if let style = circularHighlightStyle {
-                        
-                        let color = style.color ?? UIColor.red
-                        let expands = style.expands ?? true
-                        let fades = style.fades ?? true
-                        
-                        if fades {
-                            shapeLayer.fillColor = color.withAlphaComponent(multiplier).cgColor
-                        } else {
-                            shapeLayer.fillColor = color.cgColor
-                        }
-                        
-                        if expands {
-                            shapeLayer.path = getExpandingCirclePath(with: multiplier, button: button)
-                        } else {
-                            shapeLayer.path = getStaticCirclePath(button: button)
-                        }
-                    }
-                }
-                
-                playHaptics(withSection: section)
-
-                deselectAll(views: buttons.previous)
-
-            } else {
-                currentSection = -1
-                
-                if let lastButton = getViews().first {
-                    deselectView(lastButton)
-                }
-            }
-        } else {
-            print("⚠️ ScrollSelection Warning ⚠️\nNo Scroll View found.\nEnsure that there is a Scroll View in the View Controller\nUse `scrollSelection.scrollView = ...` to set your scrollView manually.")
-        }
-    }
-    
-    /// Update ScrollSelection when user stops dragging scrollView
-    ///
-    /// Called when scrollView is released (ends dragging) and thus, scroll selection will
-    /// select the corresponding bar button
-    ///
-    /// # Usage
-    /// To be called in `scrollViewDidEndDragging` function that is part of `UIScrollViewDelegate`
-    ///
-    /// ```swift
-    /// extension ViewController: UIScrollViewDelegate {
-    ///     func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
-    ///         scrollSelection.didEndDragging()
-    ///     }
-    /// }
-    /// ```
-    func didEndDragging() {
-        
-        // Don't launch buttons if it is inactive
-        if !isActive { return }
-        
-        let views = getViews()
-        
-        if let offset = scrollView?.contentOffset.y {
-            
-            if let section = getCurrentSection(offset) {
-                
-                let view = views[section]
-                
-                if let button = view as? UIButton {
-                    if let actions = button.actions(forTarget: parent,
-                                                   forControlEvent: .touchUpInside) {
-                        actions.forEach {
-                            parent.performSelector(onMainThread: Selector($0),
-                                                   with: nil,
-                                                   waitUntilDone: true)
-                        }
-                    }
-                } else if let searchBar = view as? UISearchBar {
-                    searchBar.becomeFirstResponder()
-                }
-                
-                deselectAll(views: views)
-            }
-        }
-    }
-    
-    /// Update ScrollSelection once the scrollView stops decelerating
-    ///
-    /// Called when scrollView is ends deceerating and thus, scroll selection will
-    /// reset to original state
-    ///
-    /// # Usage
-    /// To be called in `scrollViewDidEndDecelerating` function that is part of `UIScrollViewDelegate`
-    ///
-    /// ```swift
-    /// extension ViewController: UIScrollViewDelegate {
-    ///     func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
-    ///         scrollSelection.didEndDecelerating()
-    ///     }
-    /// }
-    /// ```
-    func didEndDecelerating() {
-        
-        // Don't reset to default if scrollSelection is inactive
-        if !isActive { return }
-        
-        let views = getViews()
-        
-        deselectAll(views: views)
-    }
-}
-
-// MARK: - Debugging
-extension ScrollSelection: CustomDebugStringConvertible, CustomStringConvertible {
-    public var debugDescription: String {
-        let description = "** Scroll Selection Debug **"
-            + "\nParent View Controller: \(parent.debugDescription)"
-            + "\nStyle: \(style.debugDescription)"
-            + "\nOffset Multiplier: \(offsetMultiplier.debugDescription)"
-            + "\nTarget Scroll View: \(scrollView.debugDescription)"
-        
-        return description
-    }
-    
-    public var description: String {
-        let description = "** Scroll Selection **"
-            + "\nParent View Controller: \(parent.description)"
-            + "\nStyle: \(String(describing: style))"
-            + "\nOffset Multiplier: \(String(describing: offsetMultiplier))"
-            + "\nTarget Scroll View: \(String(describing: scrollView))"
-        
-        return description
-    }
-}
-
-// MARK: - Enumerations and Structures
-public extension ScrollSelection {
-    
-    /// Customise Scroll Selection using `Style` to change colors, animations and more.
-    struct Style {
-        
-        public var rawValue: Int
-        
-        /// Storing color value as parameter
-        var color: UIColor?
-        
-        /// Storing expanding style as parameter
-        var expands: Bool?
-        
-        /// Storing fade style as parameter
-        var fades: Bool?
-        
-        /// Get `Style` using raw value
-        /// - Parameter rawValue: Raw value for style
-        public init(rawValue: Int) {
-            self.rawValue = rawValue
-        }
-        
-        /// Changes the Button color during Scroll Selection
-        /// - Parameter color: Color to change to. Default is `.systemBlue` with alpha of 0.7
-        /// - Returns: A scroll selection style
-        public static func highlight(using color: UIColor = UIColor.systemBlue.withAlphaComponent(0.7)) -> Style {
-            var style = Style(rawValue: 1 << 0)
-            style.color = color
-            
-            return style
-        }
-        
-        /// Adds a circular highlight to the button that is being selected
-        /// - Parameters:
-        ///   - color: Color of the highlight
-        ///   - expands: If true, circular highlights will expand radially to show emphasis on the button as
-        ///    the user scrolls up. Otherwise, it will stay static and the highlight will not expand.
-        ///   - fades: If true, circular highlight background will fade as the user scrolls up.
-        ///    Otherwise, it will jump from one to another, without fading.
-        /// - Returns: A scroll selection style
-        public static func circularHighlight(using color: UIColor = .systemGray5,
-                                             expands: Bool = true,
-                                             fades: Bool = true) -> Style {
-            
-            var style = Style(rawValue: 1 << 1)
-            
-            style.color = color
-            style.expands = expands
-            style.fades = fades
-            
-            return style
-        }
-        
-        /// Default scroll selection style
-        public static let defaultStyle: [Style] = [highlight(),
-                                                   circularHighlight()]
-    }
-    
-    
-    /// Indicate the side(s) to update UIBarButtonItems using directions
-    struct Direction: OptionSet {
-        
-        public var rawValue: Int
-        
-        public init(rawValue: Int) {
-            self.rawValue = rawValue
-        }
-        
-        /// Update Left Bar Buttons
-        public static let left: Direction  = Direction(rawValue: 1 << 0)
-        
-        /// Update Right Bar Buttons
-        public static let right: Direction = Direction(rawValue: 1 << 1)
-        
-        /// Update Both Right and Left Bar Buttons
-        public static let all: Direction   = [.left, .right]
-    }
-    
-    /// The styles to play the haptic feedback which is used to alert the user of a new selection
-    enum HapticsStyle {
-        
-        /// Normal Haptic Style
-        case normal
-        
-        /// No haptics
-        case disabled
-        
-        /// Default style, Haptic feedback becomes more pronounced as user scrolls up
-        ///
-        /// ```
-        /// First Button -> Last Button
-        /// Weak         -> Strong
-        /// ```
-        case variableIncreasing
-        
-        /// Haptic feedback becomes less pronounced as user scrolls up
-        ///
-        /// ```
-        /// First Button -> Last Button
-        /// Strong       -> Weak
-        /// ```
-        case variableDecreasing
-    }
-    
-    enum SelectionView: Equatable {
-        
-        case leftBarButtons
-        case rightBarButtons
-        case button(_ button: UIButton)
-        case searchBar(_ searchBar: UISearchBar)
-    }
-}
-
-// MARK: UIViewController Implementation
-@available(iOS 13.0, *)
-public extension UIViewController {
-    
-    /// Set-Up Scroll Selection on this View Controller
-    ///
-    /// - Parameters:
-    ///   - offsetMultiplier: Distance between each button selection
-    ///   - style: Scroll Selection Style.
-    ///   Use `ScrollSelection.Style.defaultStyle` for default implementation
-    ///   or remove this parameter
-    ///
-    /// - Returns: An instance of Scroll Selection that is already set up
-    func createScrollSelection(withOffset offsetMultiplier: CGFloat = 50,
-                               usingStyle style: [ScrollSelection.Style] = ScrollSelection.Style.defaultStyle) -> ScrollSelection {
-        
-        updateBarButtons()
-        
-        let scrollView = self.view.subviews.filter {
-            $0.isMember(of: UIScrollView.self) || $0 is UIScrollView
-        }.first as? UIScrollView
-        
-        return ScrollSelection(vc: self,
-                               selectedStyle: style,
-                               offsetMultiplier: offsetMultiplier,
-                               scrollView: scrollView)
-    }
-    
-    /// Update bar buttons with Scroll Selection
-    ///
-    /// Call this function whenever a change is made to the navigation bar buttons
-    ///
-    /// - Parameter direction: `.left` corresponds to the left bar buttons,
-    /// `.right` corresponds to the right bar buttons,
-    /// `.all` updates all buttons.
-    func updateBarButtons(barButtonSide direction: ScrollSelection.Direction = .all) {
-        if navigationController != nil {
-            
-            // Updating left bar buttons
-            if direction.contains(.left) {
-                let leftBarButtonItems = navigationItem.leftBarButtonItems ?? []
-                
-                navigationItem.setLeftBarButtonItems(ScrollSelection.convertBarButtons(using: leftBarButtonItems), animated: false)
-            }
-            
-            // Updating right bar buttons
-            if direction.contains(.right) {
-                let rightBarButtonItems = navigationItem.rightBarButtonItems ?? []
-                
-                let convertedButtons = ScrollSelection.convertBarButtons(using: rightBarButtonItems)
-                
-                navigationItem.setRightBarButtonItems(convertedButtons, animated: false)
-                
-            }
-        } else {
-            print("⚠️ ScrollSelection Warning ⚠️\nView Controller not in a Navigation Controller.\nEnsure that \(description) is embeded in a Navigation Controller")
-        }
     }
 }
