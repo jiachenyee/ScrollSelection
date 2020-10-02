@@ -176,6 +176,9 @@ public class ScrollSelection {
                 
             case .searchBar(let searchBar):
                 
+                // Ensures scroll selection bubble does not get cut off
+                searchBar.subviews.first?.clipsToBounds = false
+                
                 // Adding a search bar
                 views.append(searchBar)
             }
